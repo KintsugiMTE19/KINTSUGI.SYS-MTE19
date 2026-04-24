@@ -280,7 +280,7 @@ function typeFinal() {
     }
 
     if (fastMode) {
-        setTimeout(typeFinal, 5);
+        setTimeout(typeFinal, 2.5);
     } else if (finalText.charAt(charIndex) === "\n") {
         setTimeout(typeFinal, 120);
     } else {
