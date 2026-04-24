@@ -1,59 +1,37 @@
 const bootMessages = [
-    "SYSTEM BOOTING...",
-    "KINTSUGI_BOOT.SYS INITIALIZED",
-    "TAICHI_CORE_0329.MEM LOADED",
-    "SYSTEM STARTED - DAY 0330"
+    "KINTSUGI_BOOT.SYS INIZIALIZZATO",
+    "TAICHI_CORE_0329.MEM CARICATO",
+    "SISTEMA AVVIATO - GIORNO 0330"
 ];
 
-const finalText = `ACCESS GRANTED
+const authLines = [
+    "> NN54 AUTH PROTOCOL",
+    "> CREDENZIALI ACCETTATE"
+];
 
-Welcome back, operator.
-All systems are now online. 
-Welcome back, operator.
-All systems are now online.All systems are now online. 
-Welcome back, operator.
-All systems are now online.All systems are now online. 
-Welcome back, operator.
-All systems are now online.All systems are now online. 
-Welcome back, operator.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
-SYSTEM ERROR.SYSTEM ERROR.SYSTEM ERROR.
+const introLines = [
+    "ACCESSO CONSENTITO",
+    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER SALTARE",
+    "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER SALTARE"
+];
+
+const finalText = `Bentornato, operatore.
+Tutti i sistemi sono ora online. 
+Bentornato, operatore.
+Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
+Bentornato, operatore.
+Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
+Bentornato, operatore.
+Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
+Bentornato, operatore.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 `;
 
 // elementi
@@ -63,37 +41,118 @@ const terminal = typedText.parentElement;
 // stato
 let messageIndex = 0;
 let charIndex = 0;
+let introIndex = 0;
 let phase = "boot";
-let skipLineNow = false; // 👈 skip singolo
+let paused = false;
+let fastMode = false;
 
-// ------------------
-// SKIP (ENTER + TAP)
-// ------------------
-function triggerSkip() {
-    if (phase === "final") {
-        skipLineNow = true;
-    }
-}
+let enterPressed = false;
+let enterHoldTimer = null;
+let touchHoldTimer = null;
+let longTouchTriggered = false;
 
-// desktop
+const ENTER_HOLD_DELAY = 250;
+const TOUCH_HOLD_DELAY = 350;
+
+// CONTROLLI PC
 document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") triggerSkip();
+    if (e.key !== "Enter" || phase !== "final") return;
+
+    e.preventDefault();
+
+    if (!enterPressed) {
+        enterPressed = true;
+
+        enterHoldTimer = setTimeout(() => {
+            fastMode = true;
+            paused = false;
+        }, ENTER_HOLD_DELAY);
+    }
 });
 
-// mobile
-document.addEventListener("touchstart", triggerSkip);
+document.addEventListener("keyup", (e) => {
+    if (e.key !== "Enter" || phase !== "final") return;
 
+    e.preventDefault();
 
-// ------------------
-// FASE 1: BOOT
-// ------------------
+    clearTimeout(enterHoldTimer);
+
+    if (!fastMode) {
+        paused = !paused;
+    }
+
+    fastMode = false;
+    enterPressed = false;
+});
+
+// CONTROLLI MOBILE
+document.addEventListener("touchstart", () => {
+    if (phase !== "final") return;
+
+    longTouchTriggered = false;
+
+    touchHoldTimer = setTimeout(() => {
+        longTouchTriggered = true;
+        fastMode = true;
+        paused = false;
+    }, TOUCH_HOLD_DELAY);
+});
+
+document.addEventListener("touchend", () => {
+    if (phase !== "final") return;
+
+    clearTimeout(touchHoldTimer);
+
+    if (!longTouchTriggered) {
+        paused = !paused;
+    }
+
+    fastMode = false;
+});
+
+// AVVIO SISTEMA
+function startBootSequence() {
+    typedText.textContent = "AVVIO";
+    animateBootDots(0);
+}
+
+function animateBootDots(cycle) {
+    if (cycle >= 3) {
+        setTimeout(() => {
+            typedText.textContent = "";
+            typeBoot();
+        }, 600);
+        return;
+    }
+
+    let dots = 0;
+
+    const dotInterval = setInterval(() => {
+        dots++;
+        typedText.textContent = "AVVIO" + ".".repeat(dots);
+
+        if (dots === 3) {
+            clearInterval(dotInterval);
+
+            setTimeout(() => {
+                typedText.textContent = "AVVIO";
+
+                setTimeout(() => {
+                    animateBootDots(cycle + 1);
+                }, 300);
+            }, 500);
+        }
+    }, 350);
+}
+
+// BOOT
 function typeBoot() {
     const currentMessage = bootMessages[messageIndex];
 
     if (charIndex < currentMessage.length) {
         typedText.textContent = currentMessage.substring(0, charIndex + 1);
         charIndex++;
-        setTimeout(typeBoot, 60);
+        setTimeout(typeBoot, 25);
     } else {
         setTimeout(() => {
             messageIndex++;
@@ -101,30 +160,73 @@ function typeBoot() {
             if (messageIndex >= bootMessages.length) {
                 typedText.textContent = "";
                 charIndex = 0;
-                phase = "final";
-                typeFinal();
+                phase = "auth";
+                showAuthLines();
                 return;
             }
 
             charIndex = 0;
             typedText.textContent = "";
             typeBoot();
-        }, 800);
+        }, 600);
     }
 }
 
+// AUTENTICAZIONE NN54
+function showAuthLines() {
+    let authIndex = 0;
 
-// ------------------
-// FASE 2: TESTO FINALE
-// ------------------
+    function showLine() {
+        if (authIndex < authLines.length) {
+            typedText.textContent += authLines[authIndex] + "\n";
+            authIndex++;
+
+            setTimeout(showLine, 400);
+        } else {
+            setTimeout(() => {
+                typedText.textContent = "";
+
+                setTimeout(() => {
+                    phase = "intro";
+                    showIntroLines();
+                }, 300);
+            }, 800);
+        }
+    }
+
+    showLine();
+}
+
+// INTRO
+function showIntroLines() {
+    if (introIndex < introLines.length) {
+        typedText.textContent += introLines[introIndex] + "\n";
+        introIndex++;
+
+        terminal.scrollTop = terminal.scrollHeight;
+
+        setTimeout(showIntroLines, 250);
+    } else {
+        typedText.textContent += "\n";
+        phase = "final";
+
+        setTimeout(typeFinal, 2000);
+    }
+}
+
+// TESTO FINALE
 function typeFinal() {
     if (charIndex >= finalText.length) return;
+
+    if (paused) {
+        setTimeout(typeFinal, 80);
+        return;
+    }
 
     const wasAtBottom =
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
-    // ⏭️ SKIP SOLO RIGA CORRENTE
-    if (skipLineNow) {
+    if (fastMode) {
         let nextNewline = finalText.indexOf("\n", charIndex);
 
         if (nextNewline === -1) {
@@ -133,33 +235,23 @@ function typeFinal() {
 
         typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
         charIndex = nextNewline + 1;
-
-        skipLineNow = false; // 🔥 reset
-
-        if (wasAtBottom) {
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        setTimeout(typeFinal, 35);
-        return;
+    } else {
+        typedText.textContent += finalText.charAt(charIndex);
+        charIndex++;
     }
-
-    // ✍️ scrittura normale
-    typedText.textContent += finalText.charAt(charIndex);
-    charIndex++;
 
     if (wasAtBottom) {
         terminal.scrollTop = terminal.scrollHeight;
     }
 
-    // pausa più lunga a fine riga (opzionale ma bello)
-    if (finalText.charAt(charIndex) === "\n") {
+    if (fastMode) {
+        setTimeout(typeFinal, 20);
+    } else if (finalText.charAt(charIndex) === "\n") {
         setTimeout(typeFinal, 120);
     } else {
         setTimeout(typeFinal, 35);
     }
 }
 
-
 // avvio
-typeBoot();
+startBootSequence();
