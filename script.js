@@ -11,7 +11,7 @@ const authLines = [
 
 const introLines = [
     "ACCESSO CONSENTITO",
-    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER SALTARE",
+    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - DOPPIO TOCCO PER SALTARE",
     "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER SALTARE"
 ];
 
@@ -46,11 +46,16 @@ let fastMode = false;
 
 let enterPressed = false;
 let enterHoldTimer = null;
-let touchHoldTimer = null;
-let longTouchTriggered = false;
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
+let lastTapTime = 0;
+let singleTapTimer = null;
 
 const ENTER_HOLD_DELAY = 250;
-const TOUCH_HOLD_DELAY = 350;
+const TOUCH_MOVE_THRESHOLD = 12;
+const DOUBLE_TAP_DELAY = 280;
 
 // blocco selezione/menu iPhone, senza bloccare lo scroll
 [
@@ -96,14 +101,23 @@ document.addEventListener("keyup", (e) => {
     enterPressed = false;
 });
 
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMoved = false;
-let touchGestureLockedAsScroll = false;
+// SKIP RIGA CORRENTE
+function skipCurrentLine() {
+    if (phase !== "final" || charIndex >= finalText.length) return;
 
-const TOUCH_MOVE_THRESHOLD = 12;
+    let nextNewline = finalText.indexOf("\n", charIndex);
 
-// CONTROLLI MOBILE SOLO SUL TERMINALE
+    if (nextNewline === -1) {
+        nextNewline = finalText.length;
+    }
+
+    typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
+    charIndex = nextNewline + 1;
+
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// CONTROLLI MOBILE: TAP = PAUSA/RIPRESA, DOPPIO TAP = SKIP
 terminal.addEventListener("touchstart", (e) => {
     if (phase !== "final") return;
 
@@ -111,20 +125,7 @@ terminal.addEventListener("touchstart", (e) => {
 
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
-
     touchMoved = false;
-    touchGestureLockedAsScroll = false;
-    longTouchTriggered = false;
-
-    clearTimeout(touchHoldTimer);
-
-    touchHoldTimer = setTimeout(() => {
-        if (!touchMoved && !touchGestureLockedAsScroll) {
-            longTouchTriggered = true;
-            fastMode = true;
-            paused = false;
-        }
-    }, TOUCH_HOLD_DELAY);
 }, { passive: true });
 
 terminal.addEventListener("touchmove", (e) => {
@@ -137,38 +138,37 @@ terminal.addEventListener("touchmove", (e) => {
 
     if (deltaX > TOUCH_MOVE_THRESHOLD || deltaY > TOUCH_MOVE_THRESHOLD) {
         touchMoved = true;
-        touchGestureLockedAsScroll = true;
-
-        clearTimeout(touchHoldTimer);
-
-        fastMode = false;
-        longTouchTriggered = false;
     }
 }, { passive: true });
 
-terminal.addEventListener("touchend", () => {
+terminal.addEventListener("touchend", (e) => {
     if (phase !== "final") return;
 
-    clearTimeout(touchHoldTimer);
-
-    if (!longTouchTriggered && !touchGestureLockedAsScroll) {
-        paused = !paused;
+    if (touchMoved) {
+        return;
     }
 
-    fastMode = false;
-    longTouchTriggered = false;
-    touchMoved = false;
-    touchGestureLockedAsScroll = false;
-}, { passive: true });
+    e.preventDefault();
 
-terminal.addEventListener("touchcancel", () => {
-    clearTimeout(touchHoldTimer);
+    const now = Date.now();
+    const timeSinceLastTap = now - lastTapTime;
 
-    fastMode = false;
-    longTouchTriggered = false;
-    touchMoved = false;
-    touchGestureLockedAsScroll = false;
-}, { passive: true });
+    if (timeSinceLastTap < DOUBLE_TAP_DELAY) {
+        clearTimeout(singleTapTimer);
+        singleTapTimer = null;
+        lastTapTime = 0;
+
+        skipCurrentLine();
+    } else {
+        lastTapTime = now;
+
+        singleTapTimer = setTimeout(() => {
+            paused = !paused;
+            singleTapTimer = null;
+        }, DOUBLE_TAP_DELAY);
+    }
+}, { passive: false });
+
 // AVVIO
 function startBootSequence() {
     typedText.textContent = "AVVIO";
@@ -286,14 +286,7 @@ function typeFinal() {
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
     if (fastMode) {
-        let nextNewline = finalText.indexOf("\n", charIndex);
-
-        if (nextNewline === -1) {
-            nextNewline = finalText.length;
-        }
-
-        typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
-        charIndex = nextNewline + 1;
+        skipCurrentLine();
     } else {
         typedText.textContent += finalText.charAt(charIndex);
         charIndex++;
