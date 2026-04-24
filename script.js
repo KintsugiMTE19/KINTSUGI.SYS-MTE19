@@ -11,7 +11,7 @@ const authLines = [
 
 const introLines = [
     "ACCESSO CONSENTITO",
-    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - DOPPIO TOCCO PER SALTARE",
+    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER SALTARE",
     "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER SALTARE"
 ];
 
@@ -46,16 +46,11 @@ let fastMode = false;
 
 let enterPressed = false;
 let enterHoldTimer = null;
-
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMoved = false;
-let lastTapTime = 0;
-let singleTapTimer = null;
+let touchHoldTimer = null;
+let longTouchTriggered = false;
 
 const ENTER_HOLD_DELAY = 250;
-const TOUCH_MOVE_THRESHOLD = 12;
-const DOUBLE_TAP_DELAY = 280;
+const TOUCH_HOLD_DELAY = 350;
 
 // blocco selezione/menu iPhone, senza bloccare lo scroll
 [
@@ -101,23 +96,13 @@ document.addEventListener("keyup", (e) => {
     enterPressed = false;
 });
 
-// SKIP RIGA CORRENTE
-function skipCurrentLine() {
-    if (phase !== "final" || charIndex >= finalText.length) return;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
 
-    let nextNewline = finalText.indexOf("\n", charIndex);
+const TOUCH_MOVE_THRESHOLD = 12;
 
-    if (nextNewline === -1) {
-        nextNewline = finalText.length;
-    }
-
-    typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
-    charIndex = nextNewline + 1;
-
-    terminal.scrollTop = terminal.scrollHeight;
-}
-
-// CONTROLLI MOBILE: TAP = PAUSA/RIPRESA, DOPPIO TAP = SKIP
+// CONTROLLI MOBILE SOLO SUL TERMINALE
 terminal.addEventListener("touchstart", (e) => {
     if (phase !== "final") return;
 
@@ -126,6 +111,17 @@ terminal.addEventListener("touchstart", (e) => {
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
     touchMoved = false;
+    longTouchTriggered = false;
+
+    clearTimeout(touchHoldTimer);
+
+    touchHoldTimer = setTimeout(() => {
+        if (!touchMoved) {
+            longTouchTriggered = true;
+            fastMode = true;
+            paused = false;
+        }
+    }, TOUCH_HOLD_DELAY);
 }, { passive: true });
 
 terminal.addEventListener("touchmove", (e) => {
@@ -138,36 +134,26 @@ terminal.addEventListener("touchmove", (e) => {
 
     if (deltaX > TOUCH_MOVE_THRESHOLD || deltaY > TOUCH_MOVE_THRESHOLD) {
         touchMoved = true;
+        clearTimeout(touchHoldTimer);
+
+        fastMode = false;
+        longTouchTriggered = false;
     }
 }, { passive: true });
 
-terminal.addEventListener("touchend", (e) => {
+terminal.addEventListener("touchend", () => {
     if (phase !== "final") return;
 
-    if (touchMoved) {
-        return;
+    clearTimeout(touchHoldTimer);
+
+    if (!longTouchTriggered && !touchMoved) {
+        paused = !paused;
     }
 
-    e.preventDefault();
-
-    const now = Date.now();
-    const timeSinceLastTap = now - lastTapTime;
-
-    if (timeSinceLastTap < DOUBLE_TAP_DELAY) {
-        clearTimeout(singleTapTimer);
-        singleTapTimer = null;
-        lastTapTime = 0;
-
-        skipCurrentLine();
-    } else {
-        lastTapTime = now;
-
-        singleTapTimer = setTimeout(() => {
-            paused = !paused;
-            singleTapTimer = null;
-        }, DOUBLE_TAP_DELAY);
-    }
-}, { passive: false });
+    fastMode = false;
+    longTouchTriggered = false;
+    touchMoved = false;
+}, { passive: true });
 
 // AVVIO
 function startBootSequence() {
@@ -286,7 +272,14 @@ function typeFinal() {
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
     if (fastMode) {
-        skipCurrentLine();
+        let nextNewline = finalText.indexOf("\n", charIndex);
+
+        if (nextNewline === -1) {
+            nextNewline = finalText.length;
+        }
+
+        typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
+        charIndex = nextNewline + 1;
     } else {
         typedText.textContent += finalText.charAt(charIndex);
         charIndex++;
