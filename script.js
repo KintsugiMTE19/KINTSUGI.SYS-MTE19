@@ -96,17 +96,54 @@ document.addEventListener("keyup", (e) => {
     enterPressed = false;
 });
 
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
+let touchGestureLockedAsScroll = false;
+
+const TOUCH_MOVE_THRESHOLD = 12;
+
 // CONTROLLI MOBILE SOLO SUL TERMINALE
-terminal.addEventListener("touchstart", () => {
+terminal.addEventListener("touchstart", (e) => {
     if (phase !== "final") return;
 
+    const touch = e.touches[0];
+
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+
+    touchMoved = false;
+    touchGestureLockedAsScroll = false;
     longTouchTriggered = false;
 
+    clearTimeout(touchHoldTimer);
+
     touchHoldTimer = setTimeout(() => {
-        longTouchTriggered = true;
-        fastMode = true;
-        paused = false;
+        if (!touchMoved && !touchGestureLockedAsScroll) {
+            longTouchTriggered = true;
+            fastMode = true;
+            paused = false;
+        }
     }, TOUCH_HOLD_DELAY);
+}, { passive: true });
+
+terminal.addEventListener("touchmove", (e) => {
+    if (phase !== "final") return;
+
+    const touch = e.touches[0];
+
+    const deltaX = Math.abs(touch.clientX - touchStartX);
+    const deltaY = Math.abs(touch.clientY - touchStartY);
+
+    if (deltaX > TOUCH_MOVE_THRESHOLD || deltaY > TOUCH_MOVE_THRESHOLD) {
+        touchMoved = true;
+        touchGestureLockedAsScroll = true;
+
+        clearTimeout(touchHoldTimer);
+
+        fastMode = false;
+        longTouchTriggered = false;
+    }
 }, { passive: true });
 
 terminal.addEventListener("touchend", () => {
@@ -114,13 +151,24 @@ terminal.addEventListener("touchend", () => {
 
     clearTimeout(touchHoldTimer);
 
-    if (!longTouchTriggered) {
+    if (!longTouchTriggered && !touchGestureLockedAsScroll) {
         paused = !paused;
     }
 
     fastMode = false;
+    longTouchTriggered = false;
+    touchMoved = false;
+    touchGestureLockedAsScroll = false;
 }, { passive: true });
 
+terminal.addEventListener("touchcancel", () => {
+    clearTimeout(touchHoldTimer);
+
+    fastMode = false;
+    longTouchTriggered = false;
+    touchMoved = false;
+    touchGestureLockedAsScroll = false;
+}, { passive: true });
 // AVVIO
 function startBootSequence() {
     typedText.textContent = "AVVIO";
