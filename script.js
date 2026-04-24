@@ -34,11 +34,9 @@ ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 `;
 
-// elementi
 const typedText = document.getElementById('typed-text');
 const terminal = typedText.parentElement;
 
-// stato
 let messageIndex = 0;
 let charIndex = 0;
 let introIndex = 0;
@@ -86,8 +84,10 @@ document.addEventListener("keyup", (e) => {
 });
 
 // CONTROLLI MOBILE
-document.addEventListener("touchstart", () => {
+document.addEventListener("touchstart", (e) => {
     if (phase !== "final") return;
+
+    e.preventDefault();
 
     longTouchTriggered = false;
 
@@ -96,10 +96,12 @@ document.addEventListener("touchstart", () => {
         fastMode = true;
         paused = false;
     }, TOUCH_HOLD_DELAY);
-});
+}, { passive: false });
 
-document.addEventListener("touchend", () => {
+document.addEventListener("touchend", (e) => {
     if (phase !== "final") return;
+
+    e.preventDefault();
 
     clearTimeout(touchHoldTimer);
 
@@ -108,9 +110,9 @@ document.addEventListener("touchend", () => {
     }
 
     fastMode = false;
-});
+}, { passive: false });
 
-// AVVIO SISTEMA
+// AVVIO
 function startBootSequence() {
     typedText.textContent = "AVVIO";
     animateBootDots(0);
@@ -172,7 +174,7 @@ function typeBoot() {
     }
 }
 
-// AUTENTICAZIONE NN54
+// AUTENTICAZIONE
 function showAuthLines() {
     let authIndex = 0;
 
@@ -253,5 +255,4 @@ function typeFinal() {
     }
 }
 
-// avvio
 startBootSequence();
