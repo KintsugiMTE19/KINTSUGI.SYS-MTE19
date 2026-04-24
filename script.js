@@ -11,8 +11,8 @@ const authLines = [
 
 const introLines = [
     "ACCESSO CONSENTITO",
-    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER SALTARE",
-    "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER SALTARE"
+    "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER ACCELERARE",
+    "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER ACCELERARE"
 ];
 
 const finalText = `Bentornato, operatore.
@@ -51,6 +51,11 @@ let longTouchTriggered = false;
 
 const ENTER_HOLD_DELAY = 250;
 const TOUCH_HOLD_DELAY = 350;
+const TOUCH_MOVE_THRESHOLD = 12;
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
 
 // blocco selezione/menu iPhone, senza bloccare lo scroll
 [
@@ -95,12 +100,6 @@ document.addEventListener("keyup", (e) => {
     fastMode = false;
     enterPressed = false;
 });
-
-let touchStartX = 0;
-let touchStartY = 0;
-let touchMoved = false;
-
-const TOUCH_MOVE_THRESHOLD = 12;
 
 // CONTROLLI MOBILE SOLO SUL TERMINALE
 terminal.addEventListener("touchstart", (e) => {
@@ -271,26 +270,17 @@ function typeFinal() {
     const wasAtBottom =
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
-    if (fastMode) {
-        let nextNewline = finalText.indexOf("\n", charIndex);
-
-        if (nextNewline === -1) {
-            nextNewline = finalText.length;
-        }
-
-        typedText.textContent += finalText.slice(charIndex, nextNewline + 1);
-        charIndex = nextNewline + 1;
-    } else {
-        typedText.textContent += finalText.charAt(charIndex);
-        charIndex++;
-    }
+    // Scrive sempre carattere per carattere.
+    // fastMode cambia solo la velocità, non completa la riga.
+    typedText.textContent += finalText.charAt(charIndex);
+    charIndex++;
 
     if (wasAtBottom) {
         terminal.scrollTop = terminal.scrollHeight;
     }
 
     if (fastMode) {
-        setTimeout(typeFinal, 20);
+        setTimeout(typeFinal, 5);
     } else if (finalText.charAt(charIndex) === "\n") {
         setTimeout(typeFinal, 120);
     } else {
