@@ -52,6 +52,7 @@ let longTouchTriggered = false;
 const ENTER_HOLD_DELAY = 250;
 const TOUCH_HOLD_DELAY = 350;
 
+// blocco selezione/menu iPhone, senza bloccare lo scroll
 [
     "gesturestart",
     "gesturechange",
@@ -64,6 +65,7 @@ const TOUCH_HOLD_DELAY = 350;
     }, { passive: false });
 });
 
+// CONTROLLI PC
 document.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" || phase !== "final") return;
 
@@ -94,7 +96,8 @@ document.addEventListener("keyup", (e) => {
     enterPressed = false;
 });
 
-document.addEventListener("touchstart", () => {
+// CONTROLLI MOBILE SOLO SUL TERMINALE
+terminal.addEventListener("touchstart", () => {
     if (phase !== "final") return;
 
     longTouchTriggered = false;
@@ -106,7 +109,7 @@ document.addEventListener("touchstart", () => {
     }, TOUCH_HOLD_DELAY);
 }, { passive: true });
 
-document.addEventListener("touchend", () => {
+terminal.addEventListener("touchend", () => {
     if (phase !== "final") return;
 
     clearTimeout(touchHoldTimer);
@@ -118,6 +121,7 @@ document.addEventListener("touchend", () => {
     fastMode = false;
 }, { passive: true });
 
+// AVVIO
 function startBootSequence() {
     typedText.textContent = "AVVIO";
     animateBootDots(0);
@@ -152,6 +156,7 @@ function animateBootDots(cycle) {
     }, 350);
 }
 
+// BOOT
 function typeBoot() {
     const currentMessage = bootMessages[messageIndex];
 
@@ -178,6 +183,7 @@ function typeBoot() {
     }
 }
 
+// AUTENTICAZIONE
 function showAuthLines() {
     let authIndex = 0;
 
@@ -202,6 +208,7 @@ function showAuthLines() {
     showLine();
 }
 
+// INTRO
 function showIntroLines() {
     if (introIndex < introLines.length) {
         typedText.textContent += introLines[introIndex] + "\n";
@@ -218,6 +225,7 @@ function showIntroLines() {
     }
 }
 
+// TESTO FINALE
 function typeFinal() {
     if (charIndex >= finalText.length) return;
 
