@@ -270,17 +270,20 @@ function typeFinal() {
     const wasAtBottom =
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
-    // Scrive sempre carattere per carattere.
-    // fastMode cambia solo la velocità, non completa la riga.
-    typedText.textContent += finalText.charAt(charIndex);
-    charIndex++;
+    // In fastMode scrive più caratteri per ciclo
+    const charsPerTick = fastMode ? 10 : 1;
+
+    for (let i = 0; i < charsPerTick && charIndex < finalText.length; i++) {
+        typedText.textContent += finalText.charAt(charIndex);
+        charIndex++;
+    }
 
     if (wasAtBottom) {
         terminal.scrollTop = terminal.scrollHeight;
     }
 
     if (fastMode) {
-        setTimeout(typeFinal, 2.5);
+        setTimeout(typeFinal, 8);
     } else if (finalText.charAt(charIndex) === "\n") {
         setTimeout(typeFinal, 120);
     } else {
