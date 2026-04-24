@@ -20,6 +20,46 @@ const criticalTrigger = "[CRITICALGLITCH]";
 const corruptDeleteStart = "[CORRUPT_DELETE]";
 const corruptDeleteEnd = "[/CORRUPT_DELETE]";
 
+// AUDIO
+const openSound = new Audio("suoni kintsugi/soundsboot.mp3");
+const loopSound = new Audio("suoni kintsugi/background.mp3");
+const corruptSound = new Audio("suoni kintsugi/parola corrotta.mp3");
+const glitchSound = new Audio("suoni kintsugi/glitch.mp3");
+const criticalGlitchSound = new Audio("suoni kintsugi/critical glitch.mp3");
+
+loopSound.loop = true;
+
+openSound.volume = 0.8;
+loopSound.volume = 0.35;
+corruptSound.volume = 0.7;
+glitchSound.volume = 0.7;
+criticalGlitchSound.volume = 0.9;
+
+let audioStarted = false;
+
+function playSound(sound) {
+    sound.currentTime = 0;
+    return sound.play().catch(() => {});
+}
+
+function startAudio() {
+    if (audioStarted) return;
+
+    openSound.currentTime = 0;
+
+    openSound.play()
+        .then(() => {
+            audioStarted = true;
+
+            setTimeout(() => {
+                loopSound.play().catch(() => {});
+            }, 300);
+        })
+        .catch(() => {
+            audioStarted = false;
+        });
+}
+
 const corruptMap = {
     "A": "Δ",
     "B": "β",
@@ -59,7 +99,8 @@ ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 `;
 
 const typedText = document.getElementById("typed-text");
-const terminal = typedText.parentElement;
+const terminal = document.getElementById("terminal");
+const mainCursor = document.getElementById("main-cursor");
 
 let messageIndex = 0;
 let charIndex = 0;
@@ -80,6 +121,14 @@ const TOUCH_MOVE_THRESHOLD = 12;
 let touchStartX = 0;
 let touchStartY = 0;
 let touchMoved = false;
+
+function showMainCursor() {
+    if (mainCursor) mainCursor.classList.remove("hidden");
+}
+
+function hideMainCursor() {
+    if (mainCursor) mainCursor.classList.add("hidden");
+}
 
 [
     "gesturestart",
@@ -179,6 +228,7 @@ terminal.addEventListener("touchend", () => {
 
 // AVVIO
 function startBootSequence() {
+    hideMainCursor();
     typedText.textContent = "AVVIO";
     animateBootDots(0);
 }
@@ -187,6 +237,7 @@ function animateBootDots(cycle) {
     if (cycle >= 3) {
         setTimeout(() => {
             typedText.textContent = "";
+            showMainCursor();
             typeBoot();
         }, 600);
         return;
@@ -219,7 +270,7 @@ function typeBoot() {
     if (charIndex < currentMessage.length) {
         typedText.textContent = currentMessage.substring(0, charIndex + 1);
         charIndex++;
-        setTimeout(typeBoot, 25);
+        setTimeout(typeBoot, 35);
     } else {
         setTimeout(() => {
             messageIndex++;
@@ -272,7 +323,7 @@ function showIntroLines() {
 
         terminal.scrollTop = terminal.scrollHeight;
 
-        setTimeout(showIntroLines, 250);
+        setTimeout(showIntroLines, 300);
     } else {
         typedText.textContent += "\n";
         phase = "final";
@@ -334,13 +385,13 @@ function typeFinal() {
     if (fastMode) {
         setTimeout(typeFinal, 8);
     } else if (finalText.charAt(charIndex) === "\n") {
-        setTimeout(typeFinal, 120);
+        setTimeout(typeFinal, 150);
     } else {
-        setTimeout(typeFinal, 35);
+        setTimeout(typeFinal, 55);
     }
 }
 
-// TESTO CHE SI CORROMPE E POI SI CANCELLA
+// TESTO CHE SI CORROMPE E POI SCOMPARE SUBITO
 function typeCorruptAndDelete(text) {
     let i = 0;
     let visibleText = "";
@@ -351,7 +402,7 @@ function typeCorruptAndDelete(text) {
             typedText.textContent += text[i];
             i++;
             terminal.scrollTop = terminal.scrollHeight;
-            setTimeout(type, fastMode ? 5 : 35);
+            setTimeout(type, fastMode ? 5 : 50);
         } else {
             setTimeout(corrupt, 500);
         }
@@ -360,6 +411,10 @@ function typeCorruptAndDelete(text) {
     let corruptCycles = 0;
 
     function corrupt() {
+        if (corruptCycles === 0) {
+            playSound(corruptSound);
+        }
+
         if (corruptCycles < 8) {
             let corrupted = "";
 
@@ -383,17 +438,19 @@ function typeCorruptAndDelete(text) {
     }
 
     function deleteText() {
-    typedText.textContent = typedText.textContent.slice(0, -visibleText.length);
-    visibleText = "";
+        typedText.textContent = typedText.textContent.slice(0, -visibleText.length);
+        visibleText = "";
 
-    setTimeout(typeFinal, 80);
-}
+        setTimeout(typeFinal, 80);
+    }
 
     type();
 }
 
 // GLITCH RANDOM
 function triggerGlitchEffect() {
+    playSound(glitchSound);
+
     const screen = document.querySelector(".crt-screen");
     const glitchChars = "█▓▒░#@$%&01ΔΞΩ";
     let cycles = 0;
@@ -401,7 +458,8 @@ function triggerGlitchEffect() {
 
     const interval = setInterval(() => {
         if (currentLine.length > 0) {
-            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+            typedText.textContent =
+                typedText.textContent.slice(0, -(currentLine.length + 1));
         }
 
         currentLine = "";
@@ -410,7 +468,7 @@ function triggerGlitchEffect() {
             currentLine += glitchChars[Math.floor(Math.random() * glitchChars.length)];
         }
 
-        typedText.textContent += currentLine;
+        typedText.textContent += "\n" + currentLine;
 
         if (screen) {
             screen.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
@@ -422,7 +480,8 @@ function triggerGlitchEffect() {
         if (cycles >= 10) {
             clearInterval(interval);
 
-            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+            typedText.textContent =
+                typedText.textContent.slice(0, -(currentLine.length + 1));
 
             if (screen) {
                 screen.style.transform = "none";
@@ -435,6 +494,8 @@ function triggerGlitchEffect() {
 
 // CRITICAL GLITCH
 function triggerCriticalGlitch() {
+    playSound(criticalGlitchSound);
+
     const screen = document.querySelector(".crt-screen");
     const glitchChars = "█▓▒░#@$%&01ΔΞΩERRORCRITICAL";
     let cycles = 0;
@@ -446,7 +507,8 @@ function triggerCriticalGlitch() {
 
     const interval = setInterval(() => {
         if (currentLine.length > 0) {
-            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+            typedText.textContent =
+                typedText.textContent.slice(0, -(currentLine.length + 1));
         }
 
         currentLine = "";
@@ -455,7 +517,7 @@ function triggerCriticalGlitch() {
             currentLine += glitchChars[Math.floor(Math.random() * glitchChars.length)];
         }
 
-        typedText.textContent += currentLine;
+        typedText.textContent += "\n" + currentLine;
 
         if (screen) {
             screen.style.transform = `translate(${Math.random() * 14 - 7}px, ${Math.random() * 10 - 5}px)`;
@@ -468,7 +530,8 @@ function triggerCriticalGlitch() {
         if (cycles >= 12) {
             clearInterval(interval);
 
-            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+            typedText.textContent =
+                typedText.textContent.slice(0, -(currentLine.length + 1));
 
             if (screen) {
                 screen.style.opacity = "0";
@@ -488,4 +551,36 @@ function triggerCriticalGlitch() {
     }, 45);
 }
 
-startBootSequence();
+// STORAGE DISC DIGITATO AUTOMATICAMENTE
+const startOverlay = document.getElementById("start-overlay");
+const startTyped = document.getElementById("start-typed");
+
+const storageText = "> NEURAL LOG: DAY 0330 >";
+let storageIndex = 0;
+let storageReady = false;
+
+function typeStorageDisc() {
+    if (!startTyped) return;
+
+    if (storageIndex < storageText.length) {
+        startTyped.textContent += storageText.charAt(storageIndex);
+        storageIndex++;
+        setTimeout(typeStorageDisc, 70);
+    } else {
+        storageReady = true;
+    }
+}
+
+if (startOverlay && startTyped) {
+    typeStorageDisc();
+
+    startOverlay.addEventListener("click", () => {
+        if (!storageReady) return;
+
+        startAudio();
+        startOverlay.style.display = "none";
+        startBootSequence();
+    });
+} else {
+    startBootSequence();
+}

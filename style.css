@@ -10,19 +10,20 @@ body {
     min-height: 100%;
 }
 
-/* blocco selezione */
 html,
 body,
 .crt-screen,
 #terminal,
-#typed-text {
+#typed-text,
+#start-overlay,
+.terminal-text {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
+    touch-action: pan-y;
 }
 
-/* BODY */
 body {
     background-color: #000;
     display: flex;
@@ -34,51 +35,23 @@ body {
     overflow: hidden;
 }
 
-/* testo */
-#typed-text {
-    white-space: pre-wrap;
-    display: block;
-}
-
-/* SCHERMO CRT */
 .crt-screen {
     position: relative;
-
-    width: min(900px, 90vw);
-    height: min(600px, 80vh);
-
+    width: calc(100vw - 24px);
+    height: calc(100dvh - 24px);
     padding: 20px;
-
     border-radius: 30px;
 
-    /* bordo senza artefatti */
-    box-shadow: 
+    box-shadow:
         0 0 0 4px #412f2f,
-        0 0 60px rgba(255, 0, 0, 0.2),
+        0 0 30px rgba(255, 0, 0, 0.3),
         inset 0 0 20px rgba(4, 0, 255, 0.2);
 
     background-color: rgba(20, 0, 0, 0.8);
-
     overflow: hidden;
-
-    animation: crtGlitch 6s infinite;
+    animation: crtGlitch 6.3s infinite;
 }
 
-/* scroll */
-#terminal {
-    position: relative;
-    z-index: 2;
-    height: 100%;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-
-    /* dimensione base desktop */
-    font-size: 1.2rem;
-    line-height: 1.4;
-}
-
-/* scanlines */
 .crt-screen::before {
     content: "";
     position: absolute;
@@ -93,7 +66,6 @@ body {
     z-index: 3;
 }
 
-/* flicker */
 .crt-screen::after {
     content: "";
     position: absolute;
@@ -105,7 +77,6 @@ body {
     z-index: 4;
 }
 
-/* glow */
 .glow {
     position: absolute;
     inset: 0;
@@ -120,26 +91,60 @@ body {
     z-index: 1;
 }
 
-/* cursore */
+#terminal {
+    position: relative;
+    z-index: 5;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.terminal-text {
+    font-size: 1.2rem;
+    line-height: 1.4;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+}
+
+.header-text {
+    font-size: 0.66em;
+}
+
+#start-overlay {
+    display: block;
+    cursor: pointer;
+    color: #f00;
+    font-family: inherit;
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
+    white-space: pre-wrap;
+}
+
+#start-typed {
+    display: inline;
+    white-space: pre-wrap;
+}
+
+#typed-text {
+    white-space: pre-wrap;
+    display: inline;
+}
+
 .cursor {
     display: inline-block;
     width: 10px;
     height: 2px;
     background-color: #f00;
     animation: blink 1s step-end infinite;
-    vertical-align: bottom;
+    vertical-align: text-bottom;
     margin-left: 2px;
 }
 
-/* header */
-.header-text {
-    font-size: 0.66em;
+.hidden {
+    display: none;
 }
 
-/* animazioni */
 @keyframes blink {
-    from, to { opacity: 1; }
-    50% { opacity: 0; }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
 }
 
 @keyframes flicker {
@@ -159,9 +164,7 @@ body {
     99% { transform: none; }
 }
 
-/* 🔥 MOBILE ADATTIVO */
 @media (max-width: 600px) {
-
     .crt-screen {
         width: calc(100vw - 12px);
         height: calc(100dvh - 12px);
@@ -169,13 +172,13 @@ body {
         border-radius: 26px;
     }
 
-    /* 🔥 TESTO ADATTIVO */
-    #terminal {
-        font-size: clamp(1.1rem, 3.5vw, 1.6rem);
+    .terminal-text,
+    #typed-text,
+    #start-overlay {
+        font-size: 3rem;
         line-height: 1.6;
     }
 
-    /* cursore proporzionato */
     .cursor {
         width: 18px;
         height: 4px;

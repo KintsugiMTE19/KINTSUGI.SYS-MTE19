@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="it">
 
 <head>
     <meta charset="UTF-8">
@@ -6,17 +7,25 @@
     <title>KINTSUGI.SYS</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="crt-screen">
         <div class="glow"></div>
-       <div class="terminal-text" id="terminal">
-    <span class="header-text">MILITECH-EF19X-COMBAT FULL BODY CONVERSION - STORAGE DISC</span><br>
-    <div id="typed-text"></span><span class="cursor"></div>
-</div>
-        
 
+        <div class="terminal-text" id="terminal">
+            <span class="header-text">
+                MILITECH-EF19X-COMBAT FULL BODY CONVERSION / KINTSUGI.SYS
+            </span><br>
+
+            <div id="start-overlay">
+                <span id="start-typed"></span><span class="cursor"></span>
+            </div>
+
+            <span id="typed-text"></span><span class="cursor hidden" id="main-cursor"></span>
+        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
