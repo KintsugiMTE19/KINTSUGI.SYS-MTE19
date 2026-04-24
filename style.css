@@ -171,7 +171,7 @@ body {
 
     /* 🔥 TESTO ADATTIVO */
     #terminal {
-        font-size: clamp(1.8rem, 5.5vw, 2.6rem);
+        font-size: clamp(1.1rem, 3.5vw, 1.6rem);
         line-height: 1.6;
     }
 
