@@ -10,19 +10,19 @@ body {
     min-height: 100%;
 }
 
+/* blocco selezione */
 html,
 body,
 .crt-screen,
 #terminal,
-#typed-text,
-.terminal-text {
+#typed-text {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    touch-action: pan-y;
 }
 
+/* BODY */
 body {
     background-color: #000;
     display: flex;
@@ -34,42 +34,51 @@ body {
     overflow: hidden;
 }
 
+/* testo */
 #typed-text {
     white-space: pre-wrap;
     display: block;
 }
 
+/* SCHERMO CRT */
 .crt-screen {
     position: relative;
 
-    width: calc(100vw - 24px);
-    height: calc(100dvh - 24px);
+    width: min(900px, 90vw);
+    height: min(600px, 80vh);
 
     padding: 20px;
-    border: none; /* ❌ rimuovi */
 
     border-radius: 30px;
 
-    /* ✅ bordo fake perfetto */
+    /* bordo senza artefatti */
     box-shadow: 
-        0 0 0 4px #412f2f,   /* bordo */
-        0 0 30px rgba(255, 0, 0, 0.3),
+        0 0 0 4px #412f2f,
+        0 0 60px rgba(255, 0, 0, 0.2),
         inset 0 0 20px rgba(4, 0, 255, 0.2);
 
     background-color: rgba(20, 0, 0, 0.8);
+
     overflow: hidden;
 
-    animation: crtGlitch 6.3s infinite;
+    animation: crtGlitch 6s infinite;
 }
 
+/* scroll */
 #terminal {
     position: relative;
     z-index: 2;
     height: 100%;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+
+    /* dimensione base desktop */
+    font-size: 1.2rem;
+    line-height: 1.4;
 }
 
+/* scanlines */
 .crt-screen::before {
     content: "";
     position: absolute;
@@ -84,6 +93,7 @@ body {
     z-index: 3;
 }
 
+/* flicker */
 .crt-screen::after {
     content: "";
     position: absolute;
@@ -95,22 +105,7 @@ body {
     z-index: 4;
 }
 
-.terminal-text {
-    font-size: 1.2rem;
-    line-height: 1.4;
-    text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
-}
-
-.cursor {
-    display: inline-block;
-    width: 10px;
-    height: 2px;
-    background-color: #f00;
-    animation: blink 1s step-end infinite;
-    vertical-align: bottom;
-    margin-left: 2px;
-}
-
+/* glow */
 .glow {
     position: absolute;
     inset: 0;
@@ -125,10 +120,23 @@ body {
     z-index: 1;
 }
 
+/* cursore */
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 2px;
+    background-color: #f00;
+    animation: blink 1s step-end infinite;
+    vertical-align: bottom;
+    margin-left: 2px;
+}
+
+/* header */
 .header-text {
     font-size: 0.66em;
 }
 
+/* animazioni */
 @keyframes blink {
     from, to { opacity: 1; }
     50% { opacity: 0; }
@@ -151,7 +159,9 @@ body {
     99% { transform: none; }
 }
 
+/* 🔥 MOBILE ADATTIVO */
 @media (max-width: 600px) {
+
     .crt-screen {
         width: calc(100vw - 12px);
         height: calc(100dvh - 12px);
@@ -159,24 +169,13 @@ body {
         border-radius: 26px;
     }
 
-    .terminal-text,
-    #typed-text {
-        font-size: 3rem;   /* 🔥 MOLTO più grande */
+    /* 🔥 TESTO ADATTIVO */
+    #terminal {
+        font-size: clamp(1.8rem, 5.5vw, 2.6rem);
         line-height: 1.6;
     }
 
-    .cursor {
-        width: 18px;
-        height: 4px;
-    }
-@media (max-width: 600px) {
-    #terminal,
-    #typed-text,
-    .terminal-text {
-        font-size: 2.5rem !important;
-        line-height: 1.6 !important;
-    }
-
+    /* cursore proporzionato */
     .cursor {
         width: 18px;
         height: 4px;
