@@ -34,7 +34,7 @@ ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 `;
 
-const typedText = document.getElementById('typed-text');
+const typedText = document.getElementById("typed-text");
 const terminal = typedText.parentElement;
 
 let messageIndex = 0;
@@ -51,6 +51,21 @@ let longTouchTriggered = false;
 
 const ENTER_HOLD_DELAY = 250;
 const TOUCH_HOLD_DELAY = 350;
+
+// BLOCCO SELEZIONE / MENU MOBILE
+document.addEventListener("selectstart", (e) => {
+    e.preventDefault();
+});
+
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+
+document.addEventListener("touchmove", (e) => {
+    if (phase === "final") {
+        e.preventDefault();
+    }
+}, { passive: false });
 
 // CONTROLLI PC
 document.addEventListener("keydown", (e) => {
