@@ -15,19 +15,43 @@ const introLines = [
     "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER ACCELERARE"
 ];
 
+const glitchTrigger = "[GLITCH]";
+const criticalTrigger = "[CRITICALGLITCH]";
+const corruptDeleteStart = "[CORRUPT_DELETE]";
+const corruptDeleteEnd = "[/CORRUPT_DELETE]";
+
+const corruptMap = {
+    "A": "Δ",
+    "B": "β",
+    "C": "Ͼ",
+    "D": "Đ",
+    "E": "Ξ",
+    "F": "Ғ",
+    "G": "₲",
+    "H": "Ħ",
+    "I": "1",
+    "L": "Ł",
+    "M": "Μ",
+    "N": "И",
+    "O": "0",
+    "P": "Р",
+    "R": "Я",
+    "S": "5",
+    "T": "7",
+    "U": "Ц",
+    "V": "Ѵ",
+    "Z": "Ζ"
+};
+
 const finalText = `Bentornato, operatore.
 Tutti i sistemi sono ora online. 
+[GLITCH]
 Bentornato, operatore.
-Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
-Bentornato, operatore.
-Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
-Bentornato, operatore.
-Tutti i sistemi sono ora online.Tutti i sistemi sono ora online. 
-Bentornato, operatore.
+[CORRUPT_DELETE]IDENTITÀ INDIVIDUALE RILEVATA[/CORRUPT_DELETE][CORRUPT_DELETE]RICALIBRAZIONE TAICHI.MEM [/CORRUPT_DELETE][CORRUPT_DELETE]RICALIBRAZIONE KINTSUGI.SYS [/CORRUPT_DELETE][CRITICALGLITCH]ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+[GLITCH]
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
 ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
@@ -57,7 +81,6 @@ let touchStartX = 0;
 let touchStartY = 0;
 let touchMoved = false;
 
-// blocco selezione/menu iPhone, senza bloccare lo scroll
 [
     "gesturestart",
     "gesturechange",
@@ -101,7 +124,7 @@ document.addEventListener("keyup", (e) => {
     enterPressed = false;
 });
 
-// CONTROLLI MOBILE SOLO SUL TERMINALE
+// CONTROLLI MOBILE
 terminal.addEventListener("touchstart", (e) => {
     if (phase !== "final") return;
 
@@ -270,10 +293,36 @@ function typeFinal() {
     const wasAtBottom =
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
-    // In fastMode scrive più caratteri per ciclo
     const charsPerTick = fastMode ? 5 : 1;
 
     for (let i = 0; i < charsPerTick && charIndex < finalText.length; i++) {
+        if (finalText.startsWith(corruptDeleteStart, charIndex)) {
+            const endIndex = finalText.indexOf(corruptDeleteEnd, charIndex);
+
+            if (endIndex !== -1) {
+                const textToCorrupt = finalText.slice(
+                    charIndex + corruptDeleteStart.length,
+                    endIndex
+                );
+
+                charIndex = endIndex + corruptDeleteEnd.length;
+                typeCorruptAndDelete(textToCorrupt);
+                return;
+            }
+        }
+
+        if (finalText.startsWith(criticalTrigger, charIndex)) {
+            charIndex += criticalTrigger.length;
+            triggerCriticalGlitch();
+            return;
+        }
+
+        if (finalText.startsWith(glitchTrigger, charIndex)) {
+            charIndex += glitchTrigger.length;
+            triggerGlitchEffect();
+            return;
+        }
+
         typedText.textContent += finalText.charAt(charIndex);
         charIndex++;
     }
@@ -289,6 +338,154 @@ function typeFinal() {
     } else {
         setTimeout(typeFinal, 35);
     }
+}
+
+// TESTO CHE SI CORROMPE E POI SI CANCELLA
+function typeCorruptAndDelete(text) {
+    let i = 0;
+    let visibleText = "";
+
+    function type() {
+        if (i < text.length) {
+            visibleText += text[i];
+            typedText.textContent += text[i];
+            i++;
+            terminal.scrollTop = terminal.scrollHeight;
+            setTimeout(type, fastMode ? 5 : 35);
+        } else {
+            setTimeout(corrupt, 500);
+        }
+    }
+
+    let corruptCycles = 0;
+
+    function corrupt() {
+        if (corruptCycles < 8) {
+            let corrupted = "";
+
+            for (let j = 0; j < visibleText.length; j++) {
+                const original = visibleText[j];
+                const upper = original.toUpperCase();
+
+                corrupted += Math.random() < 0.4 && corruptMap[upper]
+                    ? corruptMap[upper]
+                    : original;
+            }
+
+            typedText.textContent =
+                typedText.textContent.slice(0, -visibleText.length) + corrupted;
+
+            corruptCycles++;
+            setTimeout(corrupt, 70);
+        } else {
+            setTimeout(deleteText, 250);
+        }
+    }
+
+    function deleteText() {
+    typedText.textContent = typedText.textContent.slice(0, -visibleText.length);
+    visibleText = "";
+
+    setTimeout(typeFinal, 80);
+}
+
+    type();
+}
+
+// GLITCH RANDOM
+function triggerGlitchEffect() {
+    const screen = document.querySelector(".crt-screen");
+    const glitchChars = "█▓▒░#@$%&01ΔΞΩ";
+    let cycles = 0;
+    let currentLine = "";
+
+    const interval = setInterval(() => {
+        if (currentLine.length > 0) {
+            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+        }
+
+        currentLine = "";
+
+        for (let i = 0; i < 26; i++) {
+            currentLine += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }
+
+        typedText.textContent += currentLine;
+
+        if (screen) {
+            screen.style.transform = `translate(${Math.random() * 4 - 2}px, ${Math.random() * 4 - 2}px)`;
+        }
+
+        terminal.scrollTop = terminal.scrollHeight;
+        cycles++;
+
+        if (cycles >= 10) {
+            clearInterval(interval);
+
+            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+
+            if (screen) {
+                screen.style.transform = "none";
+            }
+
+            setTimeout(typeFinal, 250);
+        }
+    }, 45);
+}
+
+// CRITICAL GLITCH
+function triggerCriticalGlitch() {
+    const screen = document.querySelector(".crt-screen");
+    const glitchChars = "█▓▒░#@$%&01ΔΞΩERRORCRITICAL";
+    let cycles = 0;
+    let currentLine = "";
+
+    if (screen) {
+        screen.style.animation = "none";
+    }
+
+    const interval = setInterval(() => {
+        if (currentLine.length > 0) {
+            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+        }
+
+        currentLine = "";
+
+        for (let i = 0; i < 34; i++) {
+            currentLine += glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }
+
+        typedText.textContent += currentLine;
+
+        if (screen) {
+            screen.style.transform = `translate(${Math.random() * 14 - 7}px, ${Math.random() * 10 - 5}px)`;
+            screen.style.opacity = cycles % 2 === 0 ? "0.25" : "1";
+        }
+
+        terminal.scrollTop = terminal.scrollHeight;
+        cycles++;
+
+        if (cycles >= 12) {
+            clearInterval(interval);
+
+            typedText.textContent = typedText.textContent.slice(0, -currentLine.length);
+
+            if (screen) {
+                screen.style.opacity = "0";
+                screen.style.transform = "scaleY(0.03)";
+            }
+
+            setTimeout(() => {
+                if (screen) {
+                    screen.style.opacity = "1";
+                    screen.style.transform = "none";
+                    screen.style.animation = "crtGlitch 6s infinite";
+                }
+
+                setTimeout(typeFinal, 400);
+            }, 1000);
+        }
+    }, 45);
 }
 
 startBootSequence();
