@@ -271,7 +271,7 @@ function typeFinal() {
         terminal.scrollTop + terminal.clientHeight >= terminal.scrollHeight - 5;
 
     // In fastMode scrive più caratteri per ciclo
-    const charsPerTick = fastMode ? 25 : 1;
+    const charsPerTick = fastMode ? 10 : 1;
 
     for (let i = 0; i < charsPerTick && charIndex < finalText.length; i++) {
         typedText.textContent += finalText.charAt(charIndex);
