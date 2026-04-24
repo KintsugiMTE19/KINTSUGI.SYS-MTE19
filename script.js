@@ -52,20 +52,21 @@ let longTouchTriggered = false;
 const ENTER_HOLD_DELAY = 250;
 const TOUCH_HOLD_DELAY = 350;
 
-// BLOCCO SELEZIONE / MENU MOBILE
-document.addEventListener("selectstart", (e) => {
-    e.preventDefault();
-});
-
-document.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-});
-
-document.addEventListener("touchmove", (e) => {
-    if (phase === "final") {
+// BLOCCO SELEZIONE / MENU / GESTURE IPHONE
+[
+    "touchstart",
+    "touchmove",
+    "touchend",
+    "gesturestart",
+    "gesturechange",
+    "gestureend",
+    "selectstart",
+    "contextmenu"
+].forEach((eventName) => {
+    document.addEventListener(eventName, (e) => {
         e.preventDefault();
-    }
-}, { passive: false });
+    }, { passive: false });
+});
 
 // CONTROLLI PC
 document.addEventListener("keydown", (e) => {
@@ -99,10 +100,8 @@ document.addEventListener("keyup", (e) => {
 });
 
 // CONTROLLI MOBILE
-document.addEventListener("touchstart", (e) => {
+document.addEventListener("touchstart", () => {
     if (phase !== "final") return;
-
-    e.preventDefault();
 
     longTouchTriggered = false;
 
@@ -113,10 +112,8 @@ document.addEventListener("touchstart", (e) => {
     }, TOUCH_HOLD_DELAY);
 }, { passive: false });
 
-document.addEventListener("touchend", (e) => {
+document.addEventListener("touchend", () => {
     if (phase !== "final") return;
-
-    e.preventDefault();
 
     clearTimeout(touchHoldTimer);
 
