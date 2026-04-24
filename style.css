@@ -169,4 +169,16 @@ body {
         width: 18px;
         height: 4px;
     }
+@media (max-width: 600px) {
+    #terminal,
+    #typed-text,
+    .terminal-text {
+        font-size: 2.5rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .cursor {
+        width: 18px;
+        height: 4px;
+    }
 }
