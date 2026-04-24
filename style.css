@@ -159,20 +159,14 @@ body {
         border-radius: 26px;
     }
 
-    /* 🔥 TESTO PIÙ GRANDE */
-    .terminal-text {
-        font-size: 1.6rem;
-        line-height: 1.5;
-    }
-
-    /* opzionale ma consigliato */
+    .terminal-text,
     #typed-text {
-        font-size: 1.6rem;
+        font-size: 2.2rem;   /* 🔥 MOLTO più grande */
+        line-height: 1.6;
     }
 
-    /* cursore proporzionato */
     .cursor {
-        width: 14px;
-        height: 3px;
+        width: 18px;
+        height: 4px;
     }
 }
