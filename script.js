@@ -36,8 +36,44 @@ glitchSound.volume = 0.7;
 criticalGlitchSound.volume = 0.9;
 
 let audioStarted = false;
+let audioUnlocked = false;
+
+const allSounds = [
+    openSound,
+    loopSound,
+    corruptSound,
+    glitchSound,
+    criticalGlitchSound
+];
+
+function unlockAudio() {
+    if (audioUnlocked) return;
+
+    audioUnlocked = true;
+
+    allSounds.forEach((sound) => {
+        const oldMuted = sound.muted;
+        const oldVolume = sound.volume;
+
+        sound.muted = true;
+        sound.volume = 0;
+
+        sound.play()
+            .then(() => {
+                sound.pause();
+                sound.currentTime = 0;
+                sound.muted = oldMuted;
+                sound.volume = oldVolume;
+            })
+            .catch(() => {
+                sound.muted = oldMuted;
+                sound.volume = oldVolume;
+            });
+    });
+}
 
 function playSound(sound) {
+    sound.pause();
     sound.currentTime = 0;
     return sound.play().catch(() => {});
 }
@@ -45,6 +81,7 @@ function playSound(sound) {
 function startAudio() {
     if (audioStarted) return;
 
+    openSound.pause();
     openSound.currentTime = 0;
 
     openSound.play()
@@ -391,12 +428,17 @@ function typeFinal() {
     }
 }
 
-// TESTO CHE SI CORROMPE E POI SCOMPARE SUBITO
+// TESTO CHE SI CORROMPE E POI SCOMPARE
 function typeCorruptAndDelete(text) {
     let i = 0;
     let visibleText = "";
 
     function type() {
+        if (paused) {
+            setTimeout(type, 80);
+            return;
+        }
+
         if (i < text.length) {
             visibleText += text[i];
             typedText.textContent += text[i];
@@ -571,16 +613,27 @@ function typeStorageDisc() {
     }
 }
 
+function startExperience() {
+    if (!storageReady) return;
+
+    unlockAudio();
+
+    setTimeout(() => {
+        startAudio();
+    }, 80);
+
+    startOverlay.style.display = "none";
+    startBootSequence();
+}
+
 if (startOverlay && startTyped) {
     typeStorageDisc();
 
-    startOverlay.addEventListener("click", () => {
-        if (!storageReady) return;
-
-        startAudio();
-        startOverlay.style.display = "none";
-        startBootSequence();
-    });
+    startOverlay.addEventListener("click", startExperience);
+    startOverlay.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        startExperience();
+    }, { passive: false });
 } else {
     startBootSequence();
 }

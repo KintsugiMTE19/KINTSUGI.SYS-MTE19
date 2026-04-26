@@ -21,7 +21,6 @@ body,
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
-    touch-action: pan-y;
 }
 
 body {
@@ -97,10 +96,11 @@ body {
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
 }
 
 .terminal-text {
-    font-size: 1.2rem;
+    font-size: clamp(0.85rem, 2.8vw, 1.2rem);
     line-height: 1.4;
     text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
 }
@@ -143,44 +143,84 @@ body {
 }
 
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
 }
 
 @keyframes flicker {
-    0% { opacity: 0.95; }
-    5% { opacity: 0.9; }
-    10% { opacity: 0.85; }
-    15% { opacity: 0.92; }
-    20% { opacity: 0.98; }
-    25% { opacity: 1; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 0.95;
+    }
+
+    5% {
+        opacity: 0.9;
+    }
+
+    10% {
+        opacity: 0.85;
+    }
+
+    15% {
+        opacity: 0.92;
+    }
+
+    20% {
+        opacity: 0.98;
+    }
+
+    25% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 @keyframes crtGlitch {
-    0%, 97%, 100% { transform: none; }
-    98% { transform: translate(1px, 0); }
-    98.5% { transform: translate(-1px, 1px); }
-    99% { transform: none; }
+    0%, 97%, 100% {
+        transform: none;
+    }
+
+    98% {
+        transform: translate(1px, 0);
+    }
+
+    98.5% {
+        transform: translate(-1px, 1px);
+    }
+
+    99% {
+        transform: none;
+    }
 }
 
 @media (max-width: 600px) {
     .crt-screen {
         width: calc(100vw - 12px);
         height: calc(100dvh - 12px);
-        padding: 16px;
-        border-radius: 26px;
+        padding: 14px;
+        border-radius: 24px;
     }
 
     .terminal-text,
     #typed-text,
     #start-overlay {
-        font-size: 3rem;
-        line-height: 1.6;
+        font-size: clamp(0.8rem, 3.4vw, 1rem);
+        line-height: 1.45;
+    }
+
+    .header-text {
+        font-size: 0.58em;
     }
 
     .cursor {
-        width: 18px;
-        height: 4px;
+        width: 9px;
+        height: 2px;
     }
 }
