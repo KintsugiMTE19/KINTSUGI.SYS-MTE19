@@ -81,7 +81,8 @@ const corruptMap = {
     "T": "7",
     "U": "Ц",
     "V": "Ѵ",
-    "Z": "Ζ"
+    "Z": "Ζ",
+    "健司元気ですか?": "健司ちゃん、会いたかったよ"
 };
 
 const finalText = `06:00
@@ -178,7 +179,7 @@ Contenuto:
 Condivisione evento psicologo
 Proposta Evie: meditazione congiunta
 Evento simultaneo:
-probabilità incidente 67%
+probabilità incidente stradale: 67%
 tono vocale elevato
 controllo emotivo: compromesso
 Risposta ad Evie: affermativa
@@ -195,7 +196,7 @@ Kenji: individuato
 Acquisto: ciambella
 Simulazione difetto ciambella
 Avvicinamento riuscito
-[CORRUPT_DELETE]健二ちゃん [/CORRUPT_DELETE]
+[CORRUPT_DELETE]健司元気ですか?[/CORRUPT_DELETE]
 Switch linguistico → giapponese 
 Kenji:
 — insoddisfazione 
@@ -206,15 +207,20 @@ Kenji:
 [CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
 — soggetto: Freak Show
 — luogo: Atlantis
-Oggetto recuperato: interazione non consensuale
+— oggetto recuperato: interazione non consensuale
 [CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
 — soggetto: Kenji (infanzia)
 — luogo: combat zone
-— stato: ottimista – testardo – ingenuo
+— memoria recuperata:
+健司 (Kenji) sente spari dalla casa accanto
+大輔 (Daisuke) lo chiude in casa per sicurezza
+Kenji interpreta la situazione come una festa
+Richiesta di uscire per partecipare, dicendo di avere dei petardi
+— nota personale: disallineamento tra realtà ostile e percezione soggetto
+Risposta:
 [CORRUPT_DELETE]No[/CORRUPT_DELETE]
 [CORRUPT_DELETE]Forse[/CORRUPT_DELETE]
-Decisione:
-accettazione condizionata
+assenso parziale con condizioni
 Probabilità errore: 95%
 Scambio contatti
 —
@@ -224,10 +230,13 @@ Domanda: Kenji
 Risposta fornita: incompleta
 —
 16:32
-Procedura tecnica
-Apertura calotta cranica sintetica
-Intervento su chip sabotaggio
-Esito:
+[CORRUPT_DELETE]VIOLAZIONE DEL SIST[/CORRUPT_DELETE]
+> PROTOCOLLI DI SICUREZZA DISATTIVATI
+> INIZIO PROCEDURA TECNICA
+16:42
+> PROCEDURA TECNICA TERMINATA
+16:43
+Responso Daisuke:
 — non completo
 — necessarie altre 2 sessioni
 Registrazione dolore: trascurabile
@@ -237,7 +246,7 @@ Arrivo al Totentantz
 Freak Show: individuato
 Evie: individuata
 Messaggio in ingresso: Polaris
-“David sa, lo ha sempre saputo”
+“David sa tutto, lo ha sempre saputo.”
 —
 17:05
 >BIOMONITOR: Cortisolo ↑
@@ -265,26 +274,21 @@ Decisione finale: contattare EBM
 —
 17:10
 Posizione Sascha: sgabuzzino
-Stato: dormiente → attivo → instabile
+Stato: addormentato → sveglio → instabile
 —
 17:12
-Sascha fuga
-Direzione: uscita 
-Obiettivo: documenti falsi - salvataggio Polaris
-Inseguimento:
-Kintsugi → attivo
-Evie → attiva
-Interazione:
-— insulti (Kintsugi)
-— persuasione (Evie)
+Sascha: in fuga
+Obiettivo: documenti falsi - estrazione Polaris
+Recupero:
+Kintsugi → inseguimento → insulti
+Evie → inseguimento → persuasione
 Esito: ritorno del soggetto
 —
 17:15
 Vortex: individuato
 Istruzioni: fermare Sascha se necessario
-Proposta Vortex:
-riorganizzazione denti non consensuale
-Autorizzazione: limitata
+Proposta Vortex: riorganizzazione denti non consensuale
+Risposta: assenso condizionato
 —
 17:16
 Movimento → Corporate Plaza
@@ -298,8 +302,7 @@ Evie: opposizione
 Kintsugi:
 [CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
 [CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
-Nota personale:
-nessuna soluzione salverà tutti
+Esito: nessuna soluzione
 Risposta:
 “È la tua vita”
 —
@@ -311,23 +314,23 @@ Guardie:
 Ingresso autorizzato
 —
 17:51
-Comunicazione Evie — Vivien
+Comunicazione Evie - Vivienne
 Contenuto:
 — posizione: Silver Dragon
 — identità nota
 — copertura saltata
 — necessità discrezione
-Reazione: panico
-Attivazione contatti
+Reazione Vivienne: panico
+Inizio comuicazione Vivienne - contatti EBM
 —
 17:55:03
-Registrazione evento KINTSUGI.SYS LONG TERM STORAGE
+REGISTRAZIONE EVENTO SU "KINTSUGI.SYS - LONG_TERM_STORAGE"
 Proiettile → traiettoria finestra
-Vivien → Deceduta
-Reazione coniuge → Urla
+Vivienne → Deceduta
+Coniuge → Illeso
 Nota personale:
 [CORRUPT_DELETE]Soddisfazione[/CORRUPT_DELETE]
-[CRITICALGLITCH]
+[GLITCH]
 Trasferire coniuge in luogo sicuro
 —
 FINE REGISTRAZIONE PARZIALE
