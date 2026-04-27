@@ -11,6 +11,7 @@ const authLines = [
 
 const introLines = [
     "ACCESSO CONSENTITO",
+    "BENTORNATO OPERATORE",
     "> MOBILE: TOCCA PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO PER ACCELERARE",
     "> COMPUTER: PREMI ENTER PER METTERE IN PAUSA/RIPRENDERE - TIENI PREMUTO ENTER PER ACCELERARE"
 ];
@@ -36,44 +37,8 @@ glitchSound.volume = 0.7;
 criticalGlitchSound.volume = 0.9;
 
 let audioStarted = false;
-let audioUnlocked = false;
-
-const allSounds = [
-    openSound,
-    loopSound,
-    corruptSound,
-    glitchSound,
-    criticalGlitchSound
-];
-
-function unlockAudio() {
-    if (audioUnlocked) return;
-
-    audioUnlocked = true;
-
-    allSounds.forEach((sound) => {
-        const oldMuted = sound.muted;
-        const oldVolume = sound.volume;
-
-        sound.muted = true;
-        sound.volume = 0;
-
-        sound.play()
-            .then(() => {
-                sound.pause();
-                sound.currentTime = 0;
-                sound.muted = oldMuted;
-                sound.volume = oldVolume;
-            })
-            .catch(() => {
-                sound.muted = oldMuted;
-                sound.volume = oldVolume;
-            });
-    });
-}
 
 function playSound(sound) {
-    sound.pause();
     sound.currentTime = 0;
     return sound.play().catch(() => {});
 }
@@ -81,7 +46,6 @@ function playSound(sound) {
 function startAudio() {
     if (audioStarted) return;
 
-    openSound.pause();
     openSound.currentTime = 0;
 
     openSound.play()
@@ -120,19 +84,253 @@ const corruptMap = {
     "Z": "Ζ"
 };
 
-const finalText = `Bentornato, operatore.
-Tutti i sistemi sono ora online. 
+const finalText = `06:00
+Avvio del sistema
+Polaris: addormentata
+Freak Show: posizione sconosciuta
+Evie: posizione sconosciuta
+Vortex: posizione sconosciuta
+—
+06:05
+Condizioni volto ripristinate
+Microfratture dermiche sintetiche: rimarginate
+Composizione messaggio:
+Destinatari → Polaris / Freak Show / Evie
+Contenuto: “Ci vediamo dopo il turno”
+Invio completato
+—
+06:30
+Ingresso Corporate Plaza
+Profumi molecolari rilevati
+Clima operativo: ostentazione – fretta
+—
+06:35
+Accesso area di supporto psicologico
+Scale affollate
+Sala d’attesa: sovraccarico sensoriale
+Borg presenti → instabilità evidente
+Movimenti erratici
+Parole non contestualizzate
+Nota interna:
+pattern ricorrente → Recarsi qui il meno possibile
+—
+06:50
+Ingresso studio
+Tono psicologo: autoritario - deluso
+Argomenti:
+— assenza terapia: 1 mese
+— obbligo meditazione: 10 minuti / giorno
+[CORRUPT_DELETE]Incolpare Vance[/CORRUPT_DELETE]
+Non parlare di Vance
+[CORRUPT_DELETE]Non lo farò[/CORRUPT_DELETE]
 [GLITCH]
-Bentornato, operatore.
-[CORRUPT_DELETE]IDENTITÀ INDIVIDUALE RILEVATA[/CORRUPT_DELETE][CORRUPT_DELETE]RICALIBRAZIONE TAICHI.MEM [/CORRUPT_DELETE][CORRUPT_DELETE]RICALIBRAZIONE KINTSUGI.SYS [/CORRUPT_DELETE][CRITICALGLITCH]ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+Risposta:
+Lo farò
+Ricezione oggetto:
+Biglietto SASLCT (sindacato lavoratori)
+Reazione:
+umorismo interno 75%
+incoerenza logica → super chippati – lavoratori - diritti 
+Avvio protocollo meditazione:
+rumore attenuato
+abilità cognitiva ridotta
+07:50
+Termine protocollo meditazione
+—
+07:55
+Messaggio in ingresso — Freak Show
+Richieste:
+— raggiungere Daisuke
+— upgrade cyberdeck
+— disattivazione chip sabotaggio
+Azione confermata
+—
+08:00
+Accompagnamento: Kamilah → conferenza comunale
+Presenti: corporazioni / sindaco Mbole Ebunike / guardie armate
+Osservazione:
+guardie → addestramento alto
+possibili soggetti d’interesse del SALSCT
+—
+15:50
+Conversazione con Kamilah
+Tema: Tomobiki
+Fiducia Kamilah → alta
+Valutazione Tomobiki:
+— non discreto
+— approccio aggressivo probabile
+Decisione Kamilah:
+— organizzerà incontro
+— esclusione altri edgerunner
+— segretezza richiesta
+Accettazione: automatica
+—
+15:55
+Messaggio inviato → Freak Show
+“Ho finito il turno, ci vediamo al Mallplex.”
+—
+16:00
+Chiamata in ingresso — Evie
+Contenuto:
+— attacco cannibali
+— stato agitato
+— Evie stabile
+Condivisione evento psicologo
+Proposta Evie: meditazione congiunta
+Evento simultaneo:
+probabilità incidente 67%
+tono vocale elevato
+controllo emotivo: compromesso
+Risposta ad Evie: affermativa
+—
+16:15
+Freak Show: individuato
+Informazioni su Tomobiki:
+non condivise
+Ingresso negozio 
+Daisuke: individuato
+—
+16:20
+Kenji: individuato
+Acquisto: ciambella
+Simulazione difetto ciambella
+Avvicinamento riuscito
+[CORRUPT_DELETE]健二ちゃん [/CORRUPT_DELETE]
+Switch linguistico → giapponese 
+Kenji:
+— insoddisfazione 
+— interesse rilevato → Atlantis
+— menzione Slammer
+— menzione Totentatz
+— richiesta di accompagnamento
+[CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
+— soggetto: Freak Show
+— luogo: Atlantis
+Oggetto recuperato: interazione non consensuale
+[CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
+— soggetto: Kenji (infanzia)
+— luogo: combat zone
+— stato: ottimista – testardo – ingenuo
+[CORRUPT_DELETE]No[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Forse[/CORRUPT_DELETE]
+Decisione:
+accettazione condizionata
+Probabilità errore: 95%
+Scambio contatti
+—
+16:30
+Daisuke: individuato
+Domanda: Kenji
+Risposta fornita: incompleta
+—
+16:32
+Procedura tecnica
+Apertura calotta cranica sintetica
+Intervento su chip sabotaggio
+Esito:
+— non completo
+— necessarie altre 2 sessioni
+Registrazione dolore: trascurabile
+—
+17:00
+Arrivo al Totentantz
+Freak Show: individuato
+Evie: individuata
+Messaggio in ingresso: Polaris
+“David sa, lo ha sempre saputo”
+—
+17:05
+>BIOMONITOR: Cortisolo ↑
+>BIOMONITOR: Adrenalina ↑ 
+[CORRUPT_DELETE]Operazione di salvataggio[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Uccidere David[/CORRUPT_DELETE]
 [GLITCH]
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
-ERRORE DI SISTEMA.ERRORE DI SISTEMA.ERRORE DI SISTEMA.
+Opzione:
+Eliminazione David
+Probabilità di riuscita: 50%
+Probabilità morte Polaris: 99%
+[CORRUPT_DELETE]Possibile utilizzo granate frag-9[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Possibile massacro [/CORRUPT_DELETE]
+Opzione:
+Attentato tramite esplosivi
+Probabilità di riuscita: 20%
+Probabilità morte Polaris: 99%
+
+Evie: movimento frenetico – tono di voce in aumento
+Freak Show: comunicazione con Polaris
+Dati raccolti:
+— cimice nel portafortuna
+— ultimatum entro sera
+Decisione finale: contattare EBM
+—
+17:10
+Posizione Sascha: sgabuzzino
+Stato: dormiente → attivo → instabile
+—
+17:12
+Sascha fuga
+Direzione: uscita 
+Obiettivo: documenti falsi - salvataggio Polaris
+Inseguimento:
+Kintsugi → attivo
+Evie → attiva
+Interazione:
+— insulti (Kintsugi)
+— persuasione (Evie)
+Esito: ritorno del soggetto
+—
+17:15
+Vortex: individuato
+Istruzioni: fermare Sascha se necessario
+Proposta Vortex:
+riorganizzazione denti non consensuale
+Autorizzazione: limitata
+—
+17:16
+Movimento → Corporate Plaza
+Deviazione: abitazione Evie
+—
+17:40
+Proposta Freak Show
+Scenario alternativo:
+vendersi a Netwatch
+Evie: opposizione
+Kintsugi:
+[CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
+Nota personale:
+nessuna soluzione salverà tutti
+Risposta:
+“È la tua vita”
+—
+17:50
+Accesso al piano superiore
+Guardie:
+— addestramento alto
+— potenziale letale
+Ingresso autorizzato
+—
+17:51
+Comunicazione Evie — Vivien
+Contenuto:
+— posizione: Silver Dragon
+— identità nota
+— copertura saltata
+— necessità discrezione
+Reazione: panico
+Attivazione contatti
+—
+17:55:03
+Registrazione evento KINTSUGI.SYS LONG TERM STORAGE
+Proiettile → traiettoria finestra
+Vivien → Deceduta
+Reazione coniuge → Urla
+Nota personale:
+[CORRUPT_DELETE]Soddisfazione[/CORRUPT_DELETE]
+[CRITICALGLITCH]
+Trasferire coniuge in luogo sicuro
+—
+FINE REGISTRAZIONE PARZIALE
 `;
 
 const typedText = document.getElementById("typed-text");
@@ -428,17 +626,12 @@ function typeFinal() {
     }
 }
 
-// TESTO CHE SI CORROMPE E POI SCOMPARE
+// TESTO CHE SI CORROMPE E POI SCOMPARE SUBITO
 function typeCorruptAndDelete(text) {
     let i = 0;
     let visibleText = "";
 
     function type() {
-        if (paused) {
-            setTimeout(type, 80);
-            return;
-        }
-
         if (i < text.length) {
             visibleText += text[i];
             typedText.textContent += text[i];
@@ -597,7 +790,7 @@ function triggerCriticalGlitch() {
 const startOverlay = document.getElementById("start-overlay");
 const startTyped = document.getElementById("start-typed");
 
-const storageText = "> NEURAL LOG: DAY 0330 >";
+const storageText = "> STORAGE DISC >";
 let storageIndex = 0;
 let storageReady = false;
 
@@ -613,27 +806,16 @@ function typeStorageDisc() {
     }
 }
 
-function startExperience() {
-    if (!storageReady) return;
-
-    unlockAudio();
-
-    setTimeout(() => {
-        startAudio();
-    }, 80);
-
-    startOverlay.style.display = "none";
-    startBootSequence();
-}
-
 if (startOverlay && startTyped) {
     typeStorageDisc();
 
-    startOverlay.addEventListener("click", startExperience);
-    startOverlay.addEventListener("touchend", (e) => {
-        e.preventDefault();
-        startExperience();
-    }, { passive: false });
+    startOverlay.addEventListener("click", () => {
+        if (!storageReady) return;
+
+        startAudio();
+        startOverlay.style.display = "none";
+        startBootSequence();
+    });
 } else {
     startBootSequence();
 }
