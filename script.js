@@ -28,13 +28,35 @@ const corruptSound = new Audio("suoni kintsugi/parola corrotta.mp3");
 const glitchSound = new Audio("suoni kintsugi/glitch.mp3");
 const criticalGlitchSound = new Audio("suoni kintsugi/critical glitch.mp3");
 
+// SUONI E VOLUME
 loopSound.loop = true;
 
-openSound.volume = 0.8;
-loopSound.volume = 0.35;
-corruptSound.volume = 0.7;
-glitchSound.volume = 0.7;
-criticalGlitchSound.volume = 0.9;
+openSound.volume = 0.3;
+loopSound.volume = 0.05;
+corruptSound.volume = 1;
+glitchSound.volume = 1;
+criticalGlitchSound.volume = 1;
+//GLITCH PIU ALTI su mobile
+function playSound(sound) {
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (!isMobile) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {});
+        return;
+    }
+
+    const s1 = sound.cloneNode(true);
+    const s2 = sound.cloneNode(true);
+
+    s1.volume = sound.volume;
+    s2.volume = sound.volume;
+
+    s1.play().catch(() => {});
+    setTimeout(() => {
+        s2.play().catch(() => {});
+    }, 15);
+}
 
 let audioStarted = false;
 
@@ -43,22 +65,43 @@ function playSound(sound) {
     return sound.play().catch(() => {});
 }
 
-function startAudio() {
-    if (audioStarted) return;
+function unlockSound(sound) {
+    sound.muted = true;
+    sound.currentTime = 0;
 
-    openSound.currentTime = 0;
-
-    openSound.play()
+    return sound.play()
         .then(() => {
-            audioStarted = true;
-
-            setTimeout(() => {
-                loopSound.play().catch(() => {});
-            }, 300);
+            sound.pause();
+            sound.currentTime = 0;
+            sound.muted = false;
         })
         .catch(() => {
-            audioStarted = false;
+            sound.muted = false;
         });
+}
+
+async function startAudio() {
+    if (audioStarted) return;
+
+    await Promise.all([
+        unlockSound(openSound),
+        unlockSound(loopSound),
+        unlockSound(corruptSound),
+        unlockSound(glitchSound),
+        unlockSound(criticalGlitchSound)
+    ]);
+
+    audioStarted = true;
+
+    openSound.currentTime = 0;
+    openSound.muted = false;
+    openSound.play().catch(() => {});
+
+    setTimeout(() => {
+        loopSound.currentTime = 0;
+        loopSound.muted = false;
+        loopSound.play().catch(() => {});
+    }, 300);
 }
 
 const corruptMap = {
@@ -82,7 +125,13 @@ const corruptMap = {
     "U": "Ц",
     "V": "Ѵ",
     "Z": "Ζ",
-    "健司元気ですか?": "健司ちゃん、会いたかったよ"
+    "健": "会",
+"司": "逢",
+"元": "会",
+"気": "恋",
+"で": "っ",
+"す": "逢",
+"?": "!",
 };
 
 const finalText = `06:00
@@ -94,7 +143,7 @@ Vortex: posizione sconosciuta
 —
 06:05
 Condizioni volto ripristinate
-Microfratture dermiche sintetiche: rimarginate
+Microfratture dermiche: rimarginate
 Composizione messaggio:
 Destinatari → Polaris / Freak Show / Evie
 Contenuto: “Ci vediamo dopo il turno”
@@ -109,9 +158,7 @@ Clima operativo: ostentazione – fretta
 Accesso area di supporto psicologico
 Scale affollate
 Sala d’attesa: sovraccarico sensoriale
-Borg presenti → instabilità evidente
-Movimenti erratici
-Parole non contestualizzate
+Borg presenti → instabilità emotiva - movimenti erratici - parole non contestualizzate
 Nota interna:
 pattern ricorrente → Recarsi qui il meno possibile
 —
@@ -132,11 +179,11 @@ Biglietto SASLCT (sindacato lavoratori)
 Reazione:
 umorismo interno 75%
 incoerenza logica → super chippati – lavoratori - diritti 
-Avvio protocollo meditazione:
+>AVVIO PROTOCOLLO MEDITAZIONE
 rumore attenuato
 abilità cognitiva ridotta
 07:50
-Termine protocollo meditazione
+>PROTOCOLLO MEDITAZIONE TERMINATO
 —
 07:55
 Messaggio in ingresso — Freak Show
@@ -205,18 +252,18 @@ Kenji:
 — menzione Slammer
 — menzione Totentatz
 — richiesta di accompagnamento
-[CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
+Recupero dati KINSTUGI.SYS
 — soggetto: Freak Show
 — luogo: Atlantis
-— oggetto recuperato: interazione non consensuale
-[CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
-— soggetto: Kenji (infanzia)
+— oggetto recuperato: interazione intima non consensuale
+Recupero dati TAICHI.MEM
+— soggetto: 健司 (Kenji) anni: 5
 — luogo: combat zone
 — memoria recuperata:
-健司 (Kenji) sente spari dalla casa accanto
-大輔 (Daisuke) lo chiude in casa per sicurezza
-Kenji interpreta la situazione come una festa
-Richiesta di uscire per partecipare, dicendo di avere dei petardi
+il soggetto sente sparatoria dalla casa accanto
+大輔 (Daisuke) confina il soggetto in casa
+il soggetto interpreta la situazione come un gioco
+il soggetto implora di partecipare alla festa, dicendo di avere dei petardi
 — nota personale: disallineamento tra realtà ostile e percezione soggetto
 Risposta:
 [CORRUPT_DELETE]No[/CORRUPT_DELETE]
@@ -231,7 +278,7 @@ Domanda: Kenji
 Risposta fornita: incompleta
 —
 16:32
-[CORRUPT_DELETE]VIOLAZIONE DEL SIST[/CORRUPT_DELETE]
+[CORRUPT_DELETE]!VIOLAZIONE DEL SIST[/CORRUPT_DELETE]
 > PROTOCOLLI DI SICUREZZA DISATTIVATI
 > INIZIO PROCEDURA TECNICA
 16:42
@@ -239,11 +286,11 @@ Risposta fornita: incompleta
 16:43
 Responso Daisuke:
 — non completo
-— necessarie altre 2 sessioni
+— necessarie altre 3 sessioni
 Registrazione dolore: trascurabile
 —
 17:00
-Arrivo al Totentantz
+Arrivo → Totentantz
 Freak Show: individuato
 Evie: individuata
 Messaggio in ingresso: Polaris
@@ -255,19 +302,18 @@ Messaggio in ingresso: Polaris
 [CORRUPT_DELETE]Operazione di salvataggio[/CORRUPT_DELETE]
 [CORRUPT_DELETE]Uccidere David[/CORRUPT_DELETE]
 [GLITCH]
-Opzione:
+Opzioni:
 Eliminazione David
-Probabilità di riuscita: 50%
-Probabilità morte Polaris: 99%
-[CORRUPT_DELETE]Possibile utilizzo granate frag-9[/CORRUPT_DELETE]
-[CORRUPT_DELETE]Possibile massacro [/CORRUPT_DELETE]
-Opzione:
+-Probabilità di riuscita: 50%
+-Probabilità morte Polaris: 99%
+[CORRUPT_DELETE]Utilizzo granate framm[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Massacro[/CORRUPT_DELETE]
 Attentato tramite esplosivi
-Probabilità di riuscita: 20%
-Probabilità morte Polaris: 99%
+-Probabilità di riuscita: 20%
+-Probabilità morte Polaris: 99%
 
 Evie: movimento frenetico – tono di voce in aumento
-Freak Show: comunicazione con Polaris
+Comunicazione messaggistica Freak Show - Polaris
 Dati raccolti:
 — cimice nel portafortuna
 — ultimatum entro sera
@@ -278,34 +324,41 @@ Posizione Sascha: sgabuzzino
 Stato: addormentato → sveglio → instabile
 —
 17:12
-Sascha: in fuga
-Obiettivo: documenti falsi - estrazione Polaris
+Movimento Sascha → uscita del Totentantz
+Obiettivo: 
+documenti falsi - estrazione Polaris
 Recupero:
-Kintsugi → inseguimento → insulti
-Evie → inseguimento → persuasione
+Kintsugi → inseguimento → lesioni verbali → fallimento
+Evie → inseguimento → manipolazione persuasiva → successo
 Esito: ritorno del soggetto
 —
 17:15
 Vortex: individuato
-Istruzioni: fermare Sascha se necessario
-Proposta Vortex: riorganizzazione denti non consensuale
-Risposta: assenso condizionato
+Istruzioni: 
+fermare Sascha se necessario
+Proposta Vortex: 
+riorganizzazione denti non consensuale
+Risposta: 
+assenso condizionato
 —
 17:16
 Movimento → Corporate Plaza
 Deviazione: abitazione Evie
 —
 17:40
-Proposta Freak Show
-Scenario alternativo:
-vendersi a Netwatch
-Evie: opposizione
-Kintsugi:
+Ingresso → abitazione Evie
+Foxy → uscita dell'abitazione
+Proposta Freak Show:
+cessione della propria persona a Netwatch
+Risposta Evie: 
+opposizione assoluta
+Valutazione Kintsugi:
 [CORRUPT_DELETE]Recupero dati KINSTUGI.SYS[/CORRUPT_DELETE]
 [CORRUPT_DELETE]Recupero dati TAICHI.MEM[/CORRUPT_DELETE]
-Esito: nessuna soluzione
+Alternative rilevate:
+0
 Risposta:
-“È la tua vita”
+Autonomia decisionale del soggetto Freak Show sottolineata
 —
 17:50
 Accesso al piano superiore
@@ -322,17 +375,20 @@ Contenuto:
 — copertura saltata
 — necessità discrezione
 Reazione Vivienne: panico
-Inizio comuicazione Vivienne - contatti EBM
+Inizio comunicazione Vivienne - contatti EBM
 —
 17:55:03
-REGISTRAZIONE EVENTO SU "KINTSUGI.SYS - LONG_TERM_STORAGE"
+> EVENTO CRITICO RILEVATO
+> SCRITTURA IMMEDIATA SU "KINTSUGI.SYS - LONG_TERM_STORAGE"
 Proiettile → traiettoria finestra
 Vivienne → Deceduta
 Coniuge → Illeso
-Nota personale:
-[CORRUPT_DELETE]Soddisfazione[/CORRUPT_DELETE]
-[GLITCH]
-Trasferire coniuge in luogo sicuro
+[CORRUPT_DELETE]!ANOMALIA!: risposta emotiva positiva associata a: decesso corpor[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Ricerca pattern umano in "TAICHI.MEM"[/CORRUPT_DELETE]
+[CORRUPT_DELETE]Ricalibrazione "KINTSUGI.SYS"[/CORRUPT_DELETE]
+[CRITICALGLITCH]
+Risposta emotiva: ignorata
+Trasferire coniuge → luogo sicuro
 —
 FINE REGISTRAZIONE PARZIALE
 `;
@@ -630,7 +686,7 @@ function typeFinal() {
     }
 }
 
-// TESTO CHE SI CORROMPE E POI SCOMPARE SUBITO
+// TESTO CORRUPT DELETE
 function typeCorruptAndDelete(text) {
     let i = 0;
     let visibleText = "";
@@ -659,11 +715,11 @@ function typeCorruptAndDelete(text) {
 
             for (let j = 0; j < visibleText.length; j++) {
                 const original = visibleText[j];
-                const upper = original.toUpperCase();
+const mapped = corruptMap[original] || corruptMap[original.toUpperCase()];
 
-                corrupted += Math.random() < 0.4 && corruptMap[upper]
-                    ? corruptMap[upper]
-                    : original;
+corrupted += Math.random() < 0.4 && mapped
+    ? mapped
+    : original;
             }
 
             typedText.textContent =
@@ -790,13 +846,14 @@ function triggerCriticalGlitch() {
     }, 45);
 }
 
-// STORAGE DISC DIGITATO AUTOMATICAMENTE
+// STORAGE DISC TAP TO ACCESS
 const startOverlay = document.getElementById("start-overlay");
 const startTyped = document.getElementById("start-typed");
 
-const storageText = "> TAP TO ACCESS: STORAGE_DISC // TEMP_CACHE >";
+const storageText = ">TAP TO ACCESS: TEMP_CACHE>";
 let storageIndex = 0;
 let storageReady = false;
+let startClicked = false;
 
 function typeStorageDisc() {
     if (!startTyped) return;
@@ -810,16 +867,24 @@ function typeStorageDisc() {
     }
 }
 
+async function handleStart(e) {
+    e.preventDefault();
+
+    if (!storageReady || startClicked) return;
+
+    startClicked = true;
+
+    await startAudio();
+
+    startOverlay.style.display = "none";
+    startBootSequence();
+}
+
 if (startOverlay && startTyped) {
     typeStorageDisc();
 
-    startOverlay.addEventListener("click", () => {
-        if (!storageReady) return;
-
-        startAudio();
-        startOverlay.style.display = "none";
-        startBootSequence();
-    });
+    startOverlay.addEventListener("touchstart", handleStart, { passive: false });
+    startOverlay.addEventListener("click", handleStart);
 } else {
     startBootSequence();
 }
