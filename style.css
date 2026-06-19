@@ -99,10 +99,6 @@ body {
     touch-action: manipulation;
 }
 
-#start-overlay {
-    transform: translateX(-200px);
-}
-
 .terminal-text {
     font-size: clamp(0.85rem, 2.8vw, 1.2rem);
     line-height: 1.4;
@@ -113,18 +109,29 @@ body {
     font-size: 0.66em;
 }
 
+/* BOTTONE TAP TO ACCESS */
 #start-overlay {
     display: block;
     cursor: pointer;
     color: #f00;
     font-family: inherit;
     text-shadow: 0 0 5px rgba(255, 0, 0, 0.8);
-    white-space: pre-wrap;
+    white-space: nowrap;
+
+    position: relative;
+    left: 0;
+
+    padding-left: calc(18px + env(safe-area-inset-left));
+    padding-right: 12px;
+
+    transform: none;
+    overflow: visible;
 }
 
 #start-typed {
-    display: inline;
-    white-space: pre-wrap;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 #typed-text {
@@ -217,6 +224,11 @@ body {
     #start-overlay {
         font-size: clamp(0.8rem, 3.4vw, 1rem);
         line-height: 1.45;
+    }
+
+    #start-overlay {
+        padding-left: calc(22px + env(safe-area-inset-left));
+        padding-right: 12px;
     }
 
     .header-text {
